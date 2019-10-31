@@ -1,6 +1,6 @@
 # UST 
 
-UST is a bioinformatics tool for constructing maximal string set representation from sequencing data.
+UST is a bioinformatics tool for constructing minimum weight string set representation from sets of k-mers.
 
 
 ## Usage
