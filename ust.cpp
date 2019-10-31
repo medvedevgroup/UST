@@ -39,7 +39,7 @@ bool FLG_NEWUB = true;
 bool FLG_ABUNDANCE = false;
 
 DEBUGFLAG_T DBGFLAG = NONE; //NODENUMBER_DBG
-ALGOMODE_T ALGOMODE = BRACKETCOMP;
+ALGOMODE_T ALGOMODE = TWOWAYEXT;
 
 string mapmode[] = {"basic", "indegree_dfs", "indegree_dfs_initial_sort_only", "outdegree_dfs", "outdegree_dfs_initial_sort_only", "inverted_indegree_dfs", "plus_indegree_dfs", "random_dfs", "node_assign", "source_first", "twoway", "profile_only", "endpoint_priority", "graph_print", "tight_ub", "tip"
 };
