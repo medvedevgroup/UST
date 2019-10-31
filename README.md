@@ -30,7 +30,7 @@ GCC >= 4.8 or a very recent C++11 capable compiler
 
 Compile from source as follows:
 
-    git clone https://github.com/amatur/UST 
+    git clone https://github.com/medvedevgroup/UST 
     cd UST
     make
 
