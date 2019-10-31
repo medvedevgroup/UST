@@ -1,11 +1,11 @@
 CC=g++
 CFLAGS=-c -w -std=c++11 -O2
 
-SOURCES=main.cpp
+SOURCES=ust.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
-EXECUTABLE=main.out
+EXECUTABLE=ust
 
-BCALMFILE=/Volumes/exFAT/data2019/staphsub/31/list_reads.unitigs.fa
+BCALMFILE=example/list_reads.unitigs.fa
 K=31
 
 all: $(SOURCES) $(EXECUTABLE) 
@@ -17,7 +17,7 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -f *.o main.out stitchedUnitigs.fa 
+	rm -f *.o ust stitchedUnitigs.fa 
 
 test:
-	./main.out -i  $(BCALMFILE) -k $(K) -f 1 -m 10 -a 1
+	./ust -i  $(BCALMFILE) -k $(K) -a 1
