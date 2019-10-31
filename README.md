@@ -11,7 +11,7 @@ Read the instructions below to compile, then:
   
 e.g.
 
-    ./ust -i list_reads.unitigs.fa -k 21 
+    ./ust -i list_reads.unitigs.fa -k 11 
 
 Importants parameters are:
 
