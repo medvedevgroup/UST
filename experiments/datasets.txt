@@ -1,0 +1,7 @@
+Command to download and filter SRA datasets:
+
+fastq-dump --outdir fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip $SRAID  
+fastq-dump --fasta 100  -A $SRADID
+
+For human gut metagenome:
+SRAID=SRR341725
