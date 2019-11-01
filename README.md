@@ -46,8 +46,9 @@ If you would like to build a membership data structure based on UST, then
 - Make sure the path to both tools is in your environment PATH variable.
 - Run `ust-fm.sh`
 
+## Citation
 
-
-
+If using UST in your research, please cite 
+* Amatur Rahman and Paul Medvedev, "Representation of k-mer sets using spectrum-preserving string sets", in submission.
 
    
