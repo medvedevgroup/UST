@@ -14,7 +14,8 @@ datasets.txt: contains the commands for filtering SRA data.
 #### SRA fastq-dump
 For human gut metagenome data used in paper:
 
-`fastq-dump --outdir fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip SRR341725`
+`fastq-dump --outdir fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip $SRAID  
+fastq-dump --fasta 100  -A SRR341725`
 
 This will generate two "fastq.gz" files.
 
