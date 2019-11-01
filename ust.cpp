@@ -1,9 +1,6 @@
-// --- VERSION 7.0 ----
-// - Oct 12
-// memory optimized, count added
-// forward ext + two way + bracket error
-//Caution:
-//removed all self-loops
+// UST
+// --- VERSION 1.0 ----
+// Author: amatur, Last Edited: Nov 1
 #include <cmath>
 #include<cstring>
 #include <fstream>
@@ -28,10 +25,10 @@
 using namespace std;
 
 bool DEBUGMODE = false;
-int K = 31;
-string UNITIG_FILE = "/Volumes/exFAT/data2019/staphsub/31/list_reads.unitigs.fa";
+int K = 0;
+string UNITIG_FILE = "examples/k11.unitigs.fa";
 
-enum DEBUGFLAG_T { NONE = 0,  UKDEBUG = 0, VERIFYINPUT = 1, INDEGREEPRINT = 2, DFSDEBUGG = 3, PARTICULAR = 4, NODENUMBER_DBG = 5, OLDNEWMAP = 9, PRINTER = 10, SINKSOURCE = 12};
+enum DEBUGFLAG_T { NONE = 0,  UKDEBUG = 6, VERIFYINPUT = 1, INDEGREEPRINT = 2, DFSDEBUGG = 3, PARTICULAR = 4, NODENUMBER_DBG = 5, OLDNEWMAP = 9, PRINTER = 10, SINKSOURCE = 12};
 
 enum ALGOMODE_T { BASIC = 0, INDEGREE_DFS = 1, INDEGREE_DFS_1 = 2, OUTDEGREE_DFS = 3, OUTDEGREE_DFS_1 = 4, INDEGREE_DFS_INVERTED = 5, PLUS_INDEGREE_DFS = 6, RANDOM_DFS = 7, NODEASSIGN = 8, SOURCEFIRST = 9, TWOWAYEXT = 10, PROFILE_ONLY = 11, EPPRIOR=12, GRAPHPRINT = 13, TIGHTUB = 14, BRACKETCOMP = 15};
 
@@ -151,7 +148,7 @@ bool charToBool(char c) {
     if (c == '+') {
         return true;
     } else {
-        if (c != '-') cout << "ERRRRRROOR!" << endl;
+        if (c != '-') cout << "Erroneus character in BCALM2 output." << endl;
         return false;
     }
 }
@@ -1008,7 +1005,7 @@ public:
             system(("awk '(NR%2)' "+UNITIG_FILE+" | cut -f 5 -d ':' | cut -f 1 -d 'L' > count.usttemp").c_str()); // get a separate count file
             system("paste -d' ' uidSeq.usttemp seq.usttemp count.usttemp > merged.usttemp ");
             system("sort -n -k 1 -o merged.usttemp merged.usttemp");
-            system("cat  merged.usttemp  | awk '{for (i=4;i<=NF;i+=1) print $i}' > count_twoway.txt");
+            system("cat  merged.usttemp  | awk '{for (i=4;i<=NF;i+=1) print $i}' > counts.txt");
         }else{
             system("paste -d' ' uidSeq.usttemp seq.usttemp > merged.usttemp ");
             system("sort -n -k 1 -o merged.usttemp merged.usttemp");
@@ -1018,7 +1015,7 @@ public:
         
         ifstream sequenceStringFile ("seq.usttemp");
         ofstream ustOutputFile ("stitchedUnitigs.fa");
-        ofstream smallKFile("smallK.fa");
+        //ofstream smallKFile("smallK.fa");
                   
         //both string and abundance sort
         //keep string only and output
@@ -1052,14 +1049,14 @@ public:
                             
                             ustOutputFile<< walkString<<endl;
                         }else{
-                            smallKFile<<">\n"<< walkString+"A" <<endl;
-                            smallKFile<<">\n"<< walkString+"C" <<endl;
-                            smallKFile<<">\n"<< walkString+"G" <<endl;
-                            smallKFile<<">\n"<< walkString+"T" <<endl;
-                            smallKFile<<">\n"<< "A"+walkString <<endl;
-                            smallKFile<<">\n"<< "C"+walkString <<endl;
-                            smallKFile<<">\n"<< "G"+walkString <<endl;
-                            smallKFile<<">\n"<< "T"+walkString <<endl;
+//                            smallKFile<<">\n"<< walkString+"A" <<endl;
+//                            smallKFile<<">\n"<< walkString+"C" <<endl;
+//                            smallKFile<<">\n"<< walkString+"G" <<endl;
+//                            smallKFile<<">\n"<< walkString+"T" <<endl;
+//                            smallKFile<<">\n"<< "A"+walkString <<endl;
+//                            smallKFile<<">\n"<< "C"+walkString <<endl;
+//                            smallKFile<<">\n"<< "G"+walkString <<endl;
+//                            smallKFile<<">\n"<< "T"+walkString <<endl;
                         }
                     }
                     
@@ -1078,254 +1075,26 @@ public:
                
                ustOutputFile<< walkString<<endl;
            }else{
-               smallKFile<<">\n"<< walkString+"A" <<endl;
-               smallKFile<<">\n"<< walkString+"C" <<endl;
-               smallKFile<<">\n"<< walkString+"G" <<endl;
-               smallKFile<<">\n"<< walkString+"T" <<endl;
-               smallKFile<<">\n"<< "A"+walkString <<endl;
-               smallKFile<<">\n"<< "C"+walkString <<endl;
-               smallKFile<<">\n"<< "G"+walkString <<endl;
-               smallKFile<<">\n"<< "T"+walkString <<endl;
+//               smallKFile<<">\n"<< walkString+"A" <<endl;
+//               smallKFile<<">\n"<< walkString+"C" <<endl;
+//               smallKFile<<">\n"<< walkString+"G" <<endl;
+//               smallKFile<<">\n"<< walkString+"T" <<endl;
+//               smallKFile<<">\n"<< "A"+walkString <<endl;
+//               smallKFile<<">\n"<< "C"+walkString <<endl;
+//               smallKFile<<">\n"<< "G"+walkString <<endl;
+//               smallKFile<<">\n"<< "T"+walkString <<endl;
            }
 
             sequenceStringFile.close();
-            smallKFile.close();
+            //smallKFile.close();
             system("rm -rf *.usttemp");
+            system("rm -rf uidSeq.txt");
         }
 
         // clean up
         delete [] merged;
         
-        /// TWOWAYEXT DONE: NOW LET"S DO BRACK COMP
-        //@@@@@ BRACKETED
-        
-        if(ALGOMODE == BRACKETCOMP){
-            bool* hasStartTip = new bool[V];
-                   bool* hasEndTip = new bool[V];
-                   for (int i = 0; i<V; i++) {
-                       hasStartTip[i] = false;
-                       hasEndTip[i] = false;
-                   }
-            if(2==2){
-                for (auto const& x : sinkSrcEdges)
-                {
-                    int sinksrc = x.first;
-                    if(sinksrc == 3997){    // @@DBG_BLOCK
-                        // || sinksrc == 3997
-                    }
-                    for(edge_t e: x.second){
-                        
-                        // when can this occur? it does occur
-                        if(color[sinksrc] != 'w'){
-                            break;
-                        }
-                        
-                        //there are 3 cases
-                        //if consistent this way [[[if(nodeSign[e.toNode] == e.right)]]]
-                        //case fwd1: sinksrc -> contig start
-                        //case fwd2. sinksrc -> contig middle/end -> ... (say that sinksrc is LEFT)
-                        //case fwd3. sinksrc -> sinksrc_other (i'd say ignore this for now)
-                        //
-                        
-                        //case bwd1. contig end -> sinksrc
-                        //case bwd2. .... -> contig middle/start -> sinksrc (say that sinksrc is RIGHT)
-                        //case bwd3. sinksrc_other -> sinksrc  (i'd say ignore this for now)
-                        
-                        // 3 fwd cases
-                        if(nodeSign[e.toNode] == e.right){  //ensure it is a fwd case
-                            if(color[e.toNode]!='w' && color[e.toNode]!='r' && color[e.toNode]!='l'){//  this ensures that this to vertex is NOT sinksrc_other
-                                //case 1, 2
-                                int whichwalk = oldToNew[e.toNode].finalWalkId;
-                                //*** case fwd1 : sinksrc -> contigStart
-                                //case fwd2. sinksrc -> contig middle/end -> ... (say that sinksrc is LEFT)
-                                //let's merge case fwd1 & fwd2
-                                //color[sinksrc] = 'b';
-                                
-                                nodeSign[sinksrc] = e.left;
-                                color[sinksrc] = 'l';
-                                oldToNew[sinksrc].serial = whichwalk;
-                                oldToNew[sinksrc].finalWalkId = whichwalk;
-                                oldToNew[sinksrc].pos_in_walk = oldToNew[e.toNode].pos_in_walk - 1;
-                                assert(oldToNew[e.toNode].pos_in_walk != -1);
-                                
-                                 // @@DBG_BLOCK int k = oldToNew[e.toNode].pos_in_walk;
-                                 // @@DBG_BLOCK bool jjjj = hasStartTip[e.toNode];
-                                if(oldToNew[e.toNode].pos_in_walk == 1 && hasStartTip[e.toNode] == false ){
-                                    oldToNew[sinksrc].isTip = 0;
-                                    hasStartTip[e.toNode] = true;
-                                    oldToNew[sinksrc].pos_in_walk = oldToNew[e.toNode].pos_in_walk - 1 ;
-                                    int j = oldToNew[sinksrc].pos_in_walk;
-                                    
-                                }else{
-                                    oldToNew[sinksrc].isTip = 2;
-                                }
-                                
-                            }
-                            
-                        }else{
-                            // 3 bwd cases
-                            
-                            if((color[e.toNode]!='w' && color[e.toNode]!='r' && color[e.toNode]!='l')){
-                                int whichwalk = oldToNew[e.toNode].finalWalkId;
-                                
-                                //*** case bwd1: contigend --> sinksrc
-                                //*** case bwd2: contigmiddle--> sinksrc
-                                
-                                
-                                nodeSign[sinksrc] = !e.left;
-                                //color[sinksrc] = 'b';
-                                color[sinksrc] = 'r';
-                                oldToNew[sinksrc].serial = whichwalk;
-                                oldToNew[sinksrc].finalWalkId = whichwalk;
-                                oldToNew[sinksrc].pos_in_walk = oldToNew[e.toNode].pos_in_walk ;
-                                assert(oldToNew[e.toNode].pos_in_walk != -1);
-                                
-                                if(oldToNew[e.toNode].isWalkEnd == true && !hasEndTip[e.toNode] ){
-                                    oldToNew[sinksrc].isTip = 0;
-                                    hasEndTip[e.toNode] = true;
-                                    oldToNew[sinksrc].pos_in_walk = oldToNew[e.toNode].pos_in_walk + 1;
-                                }else{
-                                    oldToNew[sinksrc].isTip = 1;
-                                }                            }
-                        }
-                    }
-                }
-            }
-            delete [] hasStartTip;
-            delete [] hasEndTip;
-            // now take care of all the remaining edges
-            //            for (auto const& x : sinkSrcEdges)
-            //            {
-            //                int sinksrc = x.first;
-            //                if(color[sinksrc] == 'w'){  //still white, that means it goes isolated now
-            //                    list<int> xxx;
-            //                    xxx.push_back(sinksrc);
-            //                    newToOld.push_back(xxx);
-            //                    oldToNew[sinksrc].serial = countNewNode++;
-            //                    oldToNew[sinksrc].finalWalkId = oldToNew[sinksrc].serial;
-            //                    oldToNew[sinksrc].pos_in_walk = 1;
-            //                    oldToNew[sinksrc].isTip = 0;
-            //                    // error resolved in sept 14
-            //                    color[sinksrc] = 'b';
-            //                }
-            //            }
-            
-            for (int sinksrc = 0; sinksrc<V; sinksrc++) {
-                if(global_issinksource[sinksrc] == 1 && color[sinksrc] == 'w' ){
-                    list<int> xxx;
-                    xxx.push_back(sinksrc);
-                    newToOld.push_back(xxx);
-                    oldToNew[sinksrc].serial = countNewNode++;
-                    oldToNew[sinksrc].finalWalkId = oldToNew[sinksrc].serial;
-                    oldToNew[sinksrc].pos_in_walk = 1;
-                    oldToNew[sinksrc].isTip = 0;
-                    // error resolved in sept 14
-                    color[sinksrc] = 'b';
-                }
-            }
-            
-            
-            
-            
-            //BRACKETCOMP encoder and printer::::
-            vector<fourtuple> sorter;
-            for(int uid = 0 ; uid< V; uid++){
-                new_node_info_t nd = oldToNew[uid];
-                sorter.push_back(make_tuple(uid, nd.finalWalkId, nd.pos_in_walk, nd.isTip));
-            }
-            stable_sort(sorter.begin(),sorter.end(),sort_by_tipstatus);
-            stable_sort(sorter.begin(),sorter.end(),sort_by_pos);
-            stable_sort(sorter.begin(),sorter.end(),sort_by_walkId);
-            
-            /// START OUTPUTTING
-            ofstream tipFile;
-            tipFile.open("tipOutput.txt");
-            
-            ofstream tipDebugFile;
-            tipDebugFile.open("tipDebug.txt");
-
-            int lastWalk = -1;
-            string walkString = "";
-            string tipLessWalkString ="";
-            
-            ifstream sequenceStringFile ("seq.usttemp");
-            
-            for(fourtuple n : sorter){
-                int uid = get<0>(n);
-                int finalWalkId = get<1>(n);
-                int pos_in_walk = get<2>(n);
-                int isTip = get<3>(n);
-                //cout<<uid<<" " <<finalWalkId<<" "<<pos_in_walk<<" "<<isTip<<endl;
-                
-                string unitigString;
-                if(finalWalkId!=lastWalk){
-                    if(lastWalk != -1){
-                        //print previous walk
-                        tipDebugFile<<">"<<lastWalk << " " << uid<<" " <<finalWalkId<<" "<<pos_in_walk<<" "<<isTip<<endl;
-                        //tipFile<< '>' << lastWalk << "\n" ;
-                        V_tip_ustitch++;
-                        C_tip_ustitch+=walkString.length();
-                        
-                        tipDebugFile<<walkString<<endl;
-                        tipFile<< walkString<<endl;
-                    }
-                    
-                    //start a new walk
-                    // cout<<"Walk: (" <<finalWalkId<<" ) = ";
-                    walkString = "";
-                    lastWalk = finalWalkId;
-                }
-                
-                string sequence;
-                getline(sequenceStringFile, sequence);
-                if(nodeSign[uid] == false){
-                    unitigString =  reverseComplement(sequence);
-                }else{
-                    unitigString =  (sequence);
-                }
-                
-                
-                if(isTip == 0){
-                    walkString = plus_strings(walkString, unitigString, K);
-                }else if(isTip==1){ //right R   R    ]   ]   ]   ]
-                    //cut prefix: correct
-                    if(0==0){
-                        unitigString = unitigString.substr(K - 1, unitigString.length() - (K - 1));
-                        if(walkString.length()<K){
-                            cout<<"pos: "<<walkString.length()<<endl;
-                        }
-                        walkString += "]" + unitigString + "]";
-                    }
-                    if(1==0){
-                        tipFile<<">pref\n"<<unitigString<<endl;
-                    }
-                    
-                }else if(isTip==2){ //left L   L    [ [ [
-                    //cut suffix: correct
-                    if(0==0){
-                        unitigString = unitigString.substr(0, unitigString.length() - (K - 1));
-                        if(walkString.length()<K){
-                            cout<<"pos: "<<walkString.length()<<endl;
-                        }
-                        walkString += "[" + unitigString + "[";
-                    }
-                    if(1==0){
-                        tipFile<<">suf\n"<<unitigString<<endl;
-                    }
-                }
-                
-                tipDebugFile<<">"<<uid<<" " <<finalWalkId<<" "<<pos_in_walk<<" "<<isTip<<endl;
-                //tipFile<<">"<<lastWalk<<endl; // keep this to get fasta type format
-            }
-            V_tip_ustitch++;
-            C_tip_ustitch+=walkString.length();
-            
-            tipDebugFile<< walkString<<endl;
-            tipDebugFile.close();
-            
-            tipFile<< walkString<<endl;
-            tipFile.close();
-        }
+        /// TWOWAYEXT DONE:
         
         delete []  global_issinksource;
         //delete []  global_priority;
@@ -1401,6 +1170,26 @@ void formattedOutputForwardExt(Graph &G){
     plainfile.close();
 }
 
+//void findKFromInputHeader(string hdr){
+        //int serial;
+        //int numkmers;
+        //char lnline[20];
+        //char kcline[20];
+        //int ln;
+        //sscanf(hdr.c_str(), "%*c %d %s  %s", &serial, lnline, kcline);
+        
+            ////>0 LN:i:13 KC:i:12 km:f:1.3  L:-:0:- L:-:2:-  L:+:0:+ L:+:1:-
+            //sscanf(lnline, "%*5c %d", &ln);
+            //sscanf(kcline, "%*5c %d", &numkmers);
+        
+        
+        //if(ln - numkmers + 1 != K){
+            //printf("Wrong k! Possibly try with k = %d? \n", ln - numkmers + 1);
+            //exit(2);
+        //}
+
+    
+//}
 
 int read_unitig_file(const string& unitigFileName, vector<unitig_struct_t>& unitigs) {
     ifstream unitigFile;
@@ -1425,6 +1214,12 @@ int read_unitig_file(const string& unitigFileName, vector<unitig_struct_t>& unit
             //>3 LN:i:24 ab:Z:10 10 10 10 10 7 7 7 7 7 3 3 3 3   L:-:0:+ L:-:1:+  L:+:0:-
             edgesline[0] = '\0';
             sscanf(line.c_str(), "%*c %d %s", &unitig_struct.serial, lnline);
+				
+			if(	line.find("ab:Z") == string::npos){
+				cout<<"Incorrect input format. Try using flag -a 0."<<endl;
+				exit(3);
+			}
+            
             sscanf(lnline, "%*5c %d", &unitig_struct.ln);
 
             
@@ -1441,12 +1236,30 @@ int read_unitig_file(const string& unitigFileName, vector<unitig_struct_t>& unit
   
            sscanf(line.substr(Lpos, line.length() - Lpos).c_str(), "%[^\n]s", edgesline);
             
+            if(unitig_struct.ln < K){
+                printf("Wrong k! Try again with correct k value. \n");
+                exit(2);
+            }
+            
         }else{
             edgesline[0] = '\0';
             sscanf(line.c_str(), "%*c %d %s  %s  %s %[^\n]s", &unitig_struct.serial, lnline, kcline, kmline, edgesline);
+			
+			if(	line.find("KC") == string::npos){
+				cout<<"Incorrect input format. Try using flag -a 1."<<endl;
+				exit(3);
+			}
         
             //>0 LN:i:13 KC:i:12 km:f:1.3  L:-:0:- L:-:2:-  L:+:0:+ L:+:1:-
             sscanf(lnline, "%*5c %d", &unitig_struct.ln);
+            
+            
+			
+			if(unitig_struct.ln < K){
+                printf("Wrong k! Try again with correct k value. \n");
+                exit(2);
+            }
+            
         }
         
         
@@ -1501,7 +1314,7 @@ int read_unitig_file(const string& unitigFileName, vector<unitig_struct_t>& unit
     
     unitigFile.close();
     
-    cout << "Complete reading input unitig file (bcalm2 file)." << endl;
+    //cout << "Complete reading input unitig file (bcalm2 file)." << endl;
     return EXIT_SUCCESS;
 }
 
@@ -1627,10 +1440,9 @@ void makeGraphDot(string ipstr){
 }
 
 int main(int argc, char** argv) {
-    FILE * statFile;
-    statFile = fopen (("stats"+modefilename[ALGOMODE]+".txt").c_str(),"w");
-    
+
     ofstream globalStatFile;
+    system("rm -rf global_stat");
     globalStatFile.open("global_stat", std::fstream::out | std::fstream::app);
     
     //    string debugFileName = "debug.txt";
@@ -1644,7 +1456,7 @@ int main(int argc, char** argv) {
     
     ///*
     if(DEBUGMODE==false){
-        while( ( c = getopt (argc, argv, "i:k:m:d:f:a:") ) != -1 )
+        while( ( c = getopt (argc, argv, "i:k:d:f:a:") ) != -1 )
         {
             switch(c)
             {
@@ -1661,11 +1473,11 @@ int main(int argc, char** argv) {
                         FLG_NEWUB = static_cast<bool>(std::atoi(optarg));
                     }
                     break;
-                case 'm':
-                    if(optarg) {
-                        ALGOMODE = static_cast<ALGOMODE_T>(std::atoi(optarg));
-                    }
-                    break;
+//                case 'm':
+//                    if(optarg) {
+//                        ALGOMODE = static_cast<ALGOMODE_T>(std::atoi(optarg));
+//                    }
+//                    break;
                 case 'd':
                     if(optarg) {
                         DBGFLAG = static_cast<DEBUGFLAG_T>(std::atoi(optarg));
@@ -1713,13 +1525,13 @@ int main(int argc, char** argv) {
     
     
     double startTime = readTimer();
-    cout << "## START reading file: " << UNITIG_FILE << ": K = "<<K<<endl;
+    cout << "## Please wait while we read input file.... " << UNITIG_FILE << ": k = "<<K<<endl;
     if (EXIT_FAILURE == read_unitig_file(UNITIG_FILE, unitigs)) {
         return EXIT_FAILURE;
     }
     infile.close();
     double TIME_READ_SEC = readTimer() - startTime;
-    cout<<"TIME to read file "<<TIME_READ_SEC<<" sec."<<endl;
+    cout<<"Done. TIME to read file "<<TIME_READ_SEC<<" sec."<<endl;
     
     
     Graph G;
@@ -1742,11 +1554,11 @@ int main(int argc, char** argv) {
     //        cout<<"Total Nodes: "<<V<<" Edges: "<<E<<" K-mers: "<<numKmers<<endl;
     //    }
     
-    cout<<"## START gathering info about upper bound. "<<endl;
+    cout<<"## Please wait while we gather info about lower bound.... "<<endl;
     double time_a = readTimer();
     G.indegreePopulate();
     
-    cout<<"TIME for information gather: "<<readTimer() - time_a<<" sec."<<endl;
+    cout<<"Done. TIME to gather information about unitig graph: "<<readTimer() - time_a<<" sec."<<endl;
 
     
     if(ALGOMODE == GRAPHPRINT){
@@ -1769,34 +1581,33 @@ int main(int argc, char** argv) {
     int charLowerbound = C_bcalm-(K-1)*(G.V - walkstarting_node_count*1.0);
     float upperbound = (1-((C_bcalm-(K-1)*(G.V - walkstarting_node_count*1.0))/C_bcalm))*100.0;
 
-    printf( "%d\t\
-           %d\t\
-           %d\t\
-           %d\t\
-           %d\t\
-           %d\t\
-           %.2f\t\
-           %.2f%%\t\
-           %d\t\
-           %d\t\
-           %d\t\
-           %d\t\
-           %.2f%%\t",
-           K,
-           numKmers,
-           V_bcalm,
-           E_bcalm,
-           C_bcalm,
-           charLowerbound,
-           (charLowerbound*2.0)/numKmers,
-           upperbound,
-           isolated_node_count,
-           sink_count,
-           source_count,
-           sharedparent_count,
-           sharedparent_count*100.0/V_bcalm
-           );
-    
+//    printf( "%d\t\
+//           %d\t\
+//           %d\t\
+//           %d\t\
+//           %d\t\
+//           %d\t\
+//           %.2f\t\
+//           %.2f%%\t\
+//           %d\t\
+//           %d\t\
+//           %d\t\
+//           %d\t\
+//           %.2f%%\t",
+//           K,
+//           numKmers,
+//           V_bcalm,
+//           E_bcalm,
+//           C_bcalm,
+//           charLowerbound,
+//           (charLowerbound*2.0)/numKmers,
+//           upperbound,
+//           isolated_node_count,
+//           sink_count,
+//           source_count,
+//           sharedparent_count,
+//           sharedparent_count*100.0/V_bcalm
+//           );
     
 
     globalStatFile << "K" <<  "=" << K << endl;
@@ -1822,13 +1633,13 @@ int main(int argc, char** argv) {
     
 
     for (auto i = inOutCombo.begin(); i != inOutCombo.end(); i++) {
-        printf("%.2f%%\t", (i->second)*100.0/V_bcalm);
+        //printf("%.2f%%\t", (i->second)*100.0/V_bcalm);
         globalStatFile << "PERCENT_DEGREE_"<<(i->first).first << "_" << (i->first).second <<  "=" << (i->second)*100.0/V_bcalm <<"%" << endl;
     }
-    printf("%.2f%%\t\
+    //printf("%.2f%%\t\
            %.2f%%\t",
-           isolated_node_count*100.0/V_bcalm,
-           (sink_count+source_count)*100.0/V_bcalm);
+     //      isolated_node_count*100.0/V_bcalm,
+     //      (sink_count+source_count)*100.0/V_bcalm);
     //OPTIONAL; derivable
     globalStatFile << "PERCENT_N_ISOLATED" <<  "=" << isolated_node_count*100.0/V_bcalm <<"%" << endl;
     globalStatFile << "PERCENT_N_DEADEND" <<  "=" << (sink_count+source_count)*100.0/V_bcalm <<"%" << endl;
@@ -1839,7 +1650,7 @@ int main(int argc, char** argv) {
     //    }
     
     if(ALGOMODE == PROFILE_ONLY){
-        printf("\n");
+        //printf("\n");
         return 0;
     }
     
@@ -1850,7 +1661,7 @@ int main(int argc, char** argv) {
     //##################################################//
     
     //STARTING DFS
-    cout<<"## START DFS: "<<endl;
+    cout<<"## Please wait while DFS step is going on... "<<endl;
     G.DFS();
     
     
@@ -1890,7 +1701,7 @@ int main(int argc, char** argv) {
     }
     
     
-    cout<<"TIME to output: "<<readTimer() - time_a<<" sec."<<endl;
+    cout<<"Done. TIME to output: "<<readTimer() - time_a<<" sec."<<endl;
     
     
     float percent_saved_c = (1-(C_ustitch*1.0/C_bcalm))*100.0;
@@ -1902,25 +1713,25 @@ int main(int argc, char** argv) {
     }
     
     
-    printf("%s\t",  mapmode[ALGOMODE].c_str());
-    printf("%d\t\
-           %.2f%%\t\
-           %.2f%%\t\
-           %d\t\
-           %.2f\t",
-           V_ustitch,
-           percent_saved_c,
-           upperbound - percent_saved_c,
-           C_ustitch,
-           ustitchBitsPerKmer
-           );
-    printf("%.2f\t\
-           %.2f\t",
-           TIME_READ_SEC,
-           TIME_TOTAL_SEC
-           );
-    printf("\n");
-    printf("\n");
+//    printf("%s\t",  mapmode[ALGOMODE].c_str());
+//    printf("%d\t\
+//           %.2f%%\t\
+//           %.2f%%\t\
+//           %d\t\
+//           %.2f\t",
+//           V_ustitch,
+//           percent_saved_c,
+//           upperbound - percent_saved_c,
+//           C_ustitch,
+//           ustitchBitsPerKmer
+//           );
+//    printf("%.2f\t\
+//           %.2f\t",
+//           TIME_READ_SEC,
+//           TIME_TOTAL_SEC
+//           );
+//    printf("\n");
+//    printf("\n");
     
     //globalStatFile << "USTITCH_MODE" <<  "=" << mapmode[ALGOMODE].c_str() << endl;
     globalStatFile << "V_USTITCH_" << mapmode[ALGOMODE].c_str() <<  "=" << V_ustitch << endl;
@@ -1932,6 +1743,14 @@ int main(int argc, char** argv) {
     globalStatFile << "TIME_TOTAL_SEC_" << mapmode[ALGOMODE].c_str() <<  "=" <<TIME_TOTAL_SEC << endl;
     
     globalStatFile.close();
-    fclose(statFile);
+    
+    cout << "------------ Done successfully. Output is in \"stitchedUnitigs.fa\" ------------"<<endl;
+    cout << "Total number of unique k-mers " <<  "= " << numKmers << endl;
+     cout << "Lower bound " <<  "= " << (charLowerbound*2.0)/numKmers << " bits/k-mer"<< endl;
+    cout << "Size of UST output" <<  "= " <<ustitchBitsPerKmer << " bits/k-mer"<< endl;
+     cout << "Gap with lower bound" << "= " << upperbound - percent_saved_c << "%" << endl;
+    
+    cout << "------------------------------------------------------"<<endl;
+   
     return EXIT_SUCCESS;
 }
