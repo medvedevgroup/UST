@@ -39,7 +39,7 @@ The output is a FASTA file "stitchedUnitigs.fa" in the working folder, which is 
 
 In order to build a SPSS representation for your k-mer set, you must first run [BCALM2](https://github.com/GATB/bcalm) on your set of k-mers. BCALM2 will construct a set of unitigs. Those unitigs are then fed as input to `ust`, which outputs a FASTA file with the SPSS representation. Note that the k parameter to `ust` must match the `-kmer-size` used when running BCALM2.
 
-If you would like to store the data on disk in compressed form (like UST-Compress in our paper), you can then run [MFCompress](http://bioinformatics.ua.pt/software/mfcompress/) on the output of UST as follows: `MFCompressC mykmers.ust.fa`
+If you would like to store the data on disk in compressed form (like UST-Compress in our paper), you can then install and run [MFCompress](http://bioinformatics.ua.pt/software/mfcompress/) on the output of UST as follows: `MFCompressC mykmers.ust.fa`
 
 If you would like to build a membership data structure based on UST, then 
 - Install [bwtdisk](http://people.unipmn.it/manzini/bwtdisk/) and [dbgfm](https://github.com/jts/dbgfm). 
