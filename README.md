@@ -22,11 +22,11 @@ After compiling, use
   
 e.g.
 
-    ./ust -i list_reads.unitigs.fa -k 11 
+    ./ust -i examples/k11.unitigs.fa -k 11 
 
 Importants parameters are:
 
-    -k [int] : The k-mer size, i.e. length of the nodes of the de Bruijn graph.
+    -k [int] : The k-mer size, i.e. length of the nodes of the de Bruijn graph. You need to use the exact same k value used in bcalm 2.
     
     -i [input-file] : Unitigs file produced by become in FASTA format.    
 	
