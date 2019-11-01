@@ -1,11 +1,22 @@
 # UST 
 
-UST is a bioinformatics tool for constructing minimum weight string set representation from sets of k-mers.
+UST is a bioinformatics tool for constructing minimum weight string set representation from sets of k-mers.    
+    
+## Requirements
 
+GCC >= 4.8 or a C++11 capable compiler
 
+## Installation
+
+Compile from source:
+
+    git clone https://github.com/medvedevgroup/UST 
+    cd UST
+    make
+    
 ## Usage
 
-Read the instructions below to compile, then:
+After compiling, use
 
     ./ust -i [unitigs.fa] -k [kmer_size] 
   
@@ -20,19 +31,7 @@ Importants parameters are:
     -i [input-file] : Unitigs file produced by become in FASTA format.    
 	
     -a [0 or 1] : Default is 0. A value of 1 tells UST to preserve abundance. Use this when bcalm2 output is generated with -all-abundance counts.
-    
-    
-## Pre-requisites:
 
-GCC >= 4.8 or a very recent C++11 capable compiler
-
-## Installation
-
-Compile from source as follows:
-
-    git clone https://github.com/medvedevgroup/UST 
-    cd UST
-    make
 
 ## Input formats
 
