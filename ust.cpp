@@ -1005,7 +1005,7 @@ public:
             system(("awk '(NR%2)' "+UNITIG_FILE+" | cut -f 5 -d ':' | cut -f 1 -d 'L' > count.usttemp").c_str()); // get a separate count file
             system("paste -d' ' uidSeq.usttemp seq.usttemp count.usttemp > merged.usttemp ");
             system("sort -n -k 1 -o merged.usttemp merged.usttemp");
-            system("cat  merged.usttemp  | awk '{for (i=4;i<=NF;i+=1) print $i}' > counts.txt");
+            system(("cat  merged.usttemp  | awk '{for (i=4;i<=NF;i+=1) print $i}' > "+OUTPUT_FILENAME+".ust.counts").c_str());
         }else{
             system("paste -d' ' uidSeq.usttemp seq.usttemp > merged.usttemp ");
             system("sort -n -k 1 -o merged.usttemp merged.usttemp");
@@ -1204,7 +1204,7 @@ int read_unitig_file(const string& unitigFileName, vector<unitig_struct_t>& unit
     char edgesline[100000];
     bool doCont = false;
     
-    
+    int smallestK = 9999999;
     getline(unitigFile, line);
     
     do {
@@ -1236,6 +1236,9 @@ int read_unitig_file(const string& unitigFileName, vector<unitig_struct_t>& unit
   
            sscanf(line.substr(Lpos, line.length() - Lpos).c_str(), "%[^\n]s", edgesline);
             
+            if(unitig_struct.ln < smallestK){
+                           smallestK = unitig_struct.ln ;
+                       }
             if(unitig_struct.ln < K){
                 printf("Wrong k! Try again with correct k value. \n");
                 exit(2);
@@ -1254,7 +1257,9 @@ int read_unitig_file(const string& unitigFileName, vector<unitig_struct_t>& unit
             sscanf(lnline, "%*5c %d", &unitig_struct.ln);
             
             
-			
+			if(unitig_struct.ln < smallestK){
+                           smallestK = unitig_struct.ln ;
+                       }
 			if(unitig_struct.ln < K){
                 printf("Wrong k! Try again with correct k value. \n");
                 exit(2);
@@ -1313,6 +1318,12 @@ int read_unitig_file(const string& unitigFileName, vector<unitig_struct_t>& unit
     
     
     unitigFile.close();
+    
+    if(smallestK > K ){
+        cout<<"\n :::: :::: :::: :::: !!!!!!!!! WARNING !!!!!!!!!!! :::: :::: :::: ::::"<<endl;
+        cout<<"The length of the smallest string we found was " << smallestK << ". Please make sure you are using the correct value of 'k' to ensure correctness of output."<<endl;
+         cout << "------------------------------------------------------"<<endl;
+    }
     
     //cout << "Complete reading input unitig file (bcalm2 file)." << endl;
     return EXIT_SUCCESS;
@@ -1456,33 +1467,40 @@ int main(int argc, char** argv) {
     
     ///*
     if(DEBUGMODE==false){
-        while( ( c = getopt (argc, argv, "i:k:d:f:a:") ) != -1 )
+        while( ( c = getopt (argc, argv, "i:k:a:") ) != -1 )
         {
             switch(c)
             {
                 case 'a':
                     if(optarg) {
-                        FLG_ABUNDANCE = static_cast<bool>(std::atoi(optarg));
+						if(strcmp(optarg, "0")==0 || strcmp(optarg, "1")==0){
+                            FLG_ABUNDANCE = static_cast<bool>(std::atoi(optarg));
+                        }else{
+							fprintf(stderr, "Error: use either -a 0 or -a 1 \n");
+                            exit(EXIT_FAILURE);
+						}
+                        
                     }
+                    
                     break;
                 case 'i':
                     if(optarg) nvalue = optarg;
                     break;
-                case 'f':
-                    if(optarg) {
-                        FLG_NEWUB = static_cast<bool>(std::atoi(optarg));
-                    }
-                    break;
+                //case 'f':
+                    //if(optarg) {
+                        //FLG_NEWUB = static_cast<bool>(std::atoi(optarg));
+                    //}
+                    //break;
 //                case 'm':
 //                    if(optarg) {
 //                        ALGOMODE = static_cast<ALGOMODE_T>(std::atoi(optarg));
 //                    }
 //                    break;
-                case 'd':
-                    if(optarg) {
-                        DBGFLAG = static_cast<DEBUGFLAG_T>(std::atoi(optarg));
-                    }
-                    break;
+                //case 'd':
+                    //if(optarg) {
+                        //DBGFLAG = static_cast<DEBUGFLAG_T>(std::atoi(optarg));
+                    //}
+                    //break;
                 case 'k':
                     if(optarg) {
                         K = std::atoi(optarg) ;
@@ -1491,13 +1509,13 @@ int main(int argc, char** argv) {
                             exit(EXIT_FAILURE);
                         }
                     }else{
-                        fprintf(stderr, "Usage: %s -k <kmer size> -i <input-file-name>\n",
+                        fprintf(stderr, "Usage: %s -k <kmer size> -i <input-file-name> [-a <0: for no counts, 1: to output separate count, default = 0>]\n",
                                 argv[0]);
                         exit(EXIT_FAILURE);
                     }
                     break;
                 default: //
-                    fprintf(stderr, "Usage: %s -k <kmer size> -i <input-file-name>\n",
+                    fprintf(stderr, "Usage: %s -k <kmer size> -i <input-file-name> [-a <0: for no counts, 1: to output separate count, default = 0>]\n",
                             argv[0]);
                     exit(EXIT_FAILURE);
                     
@@ -1505,7 +1523,7 @@ int main(int argc, char** argv) {
         }
         
         if(K==0 || strcmp(nvalue, "")==0){
-            fprintf(stderr, "Usage: %s -k <kmer size> -i <input-file-name>\n",
+            fprintf(stderr, "Usage: %s -k <kmer size> -i <input-file-name> [-a <0: for no counts, 1: to output separate count, default = 0>]\n",
                     argv[0]);
             exit(EXIT_FAILURE);
         }
@@ -1744,13 +1762,14 @@ int main(int argc, char** argv) {
     
     globalStatFile.close();
     
-    cout << "------------ Done successfully. Output is in \"stitchedUnitigs.fa\" ------------"<<endl;
-    cout << "Total number of unique k-mers " <<  "= " << numKmers << endl;
-     cout << "Lower bound " <<  "= " << (charLowerbound*2.0)/numKmers << " bits/k-mer"<< endl;
-    cout << "Size of UST output" <<  "= " <<ustitchBitsPerKmer << " bits/k-mer"<< endl;
-     cout << "Gap with lower bound" << "= " << upperbound - percent_saved_c << "%" << endl;
+     cout << "------------ UST completed successfully. Output is in file "<<OUTPUT_FILENAME << " ------------"<<endl;
+    cout << "Total number of unique "<<K<<"-mers " <<  "= " << numKmers << endl;
+     cout << "Lower bound on any SPSS representation " <<  "= " << (charLowerbound)*1.0/numKmers << " neucleotide/k-mer"<< endl;
+    cout << "Size of UST output" <<  "= " <<ustitchBitsPerKmer*2.0 << " neucleotide/k-mer"<< endl;
+     //cout << "Gap with lower bound" << "= " << upperbound - percent_saved_c << "%" << endl;
     
     cout << "------------------------------------------------------"<<endl;
+   
    
     return EXIT_SUCCESS;
 }
