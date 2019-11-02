@@ -1451,6 +1451,19 @@ void makeGraphDot(string ipstr){
     fclose(fp);
 }
 
+string getFileName(const string& s) {
+
+   char sep = '/';
+
+   size_t i = s.rfind(sep, s.length());
+   if (i != string::npos) {
+      return(s.substr(i+1, s.length() - i));
+   }
+
+   return("");
+}
+
+
 int main(int argc, char** argv) {
 
     #ifdef _WIN32
