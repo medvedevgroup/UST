@@ -29,7 +29,7 @@ The important parameters are:
 *  `i [input-file]` : Unitigs file produced by [BCALM2 in FASTA format](https://github.com/GATB/bcalm#output). 
 *  `a [0 or 1]` : Default is 0. A value of 1 tells UST to preserve abundance. Use this option when the input file was generated with the  `-all-abundance counts` option of BCALM2.
 
-The output is a FASTA file "stitchedUnitigs.fa" in the working folder, which is the SPSS representaiton of the input.
+The output is a FASTA file with extenstion "ust.fa" in the working folder, which is the SPSS representaiton of the input. If the program is run with the option -a 1, an additional count file with extension "ust.counts" will also be generated.
 
 
 ## Detailed Usage
