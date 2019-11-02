@@ -1184,27 +1184,6 @@ void formattedOutputForwardExt(Graph &G){
     plainfile.close();
 }
 
-//void findKFromInputHeader(string hdr){
-        //int serial;
-        //int numkmers;
-        //char lnline[20];
-        //char kcline[20];
-        //int ln;
-        //sscanf(hdr.c_str(), "%*c %d %s  %s", &serial, lnline, kcline);
-
-            ////>0 LN:i:13 KC:i:12 km:f:1.3  L:-:0:- L:-:2:-  L:+:0:+ L:+:1:-
-            //sscanf(lnline, "%*5c %d", &ln);
-            //sscanf(kcline, "%*5c %d", &numkmers);
-
-
-        //if(ln - numkmers + 1 != K){
-            //printf("Wrong k! Possibly try with k = %d? \n", ln - numkmers + 1);
-            //exit(2);
-        //}
-
-
-//}
-
 int read_unitig_file(const string& unitigFileName, vector<unitig_struct_t>& unitigs) {
     ifstream unitigFile;
     unitigFile.open(unitigFileName);
@@ -1343,129 +1322,6 @@ int read_unitig_file(const string& unitigFileName, vector<unitig_struct_t>& unit
     return EXIT_SUCCESS;
 }
 
-set<int> extractIntegerWords(string str)
-{
-    set<int> retset;
-    stringstream ss;
-
-    /* Storing the whole string into string stream */
-    ss << str;
-
-    /* Running loop till the end of the stream */
-    string temp;
-    int found;
-    while (!ss.eof()) {
-
-        /* extracting word by word from stream */
-        ss >> temp;
-
-        /* Checking the given word is integer or not */
-        if (stringstream(temp) >> found)
-            retset.insert(found);
-
-        /* To save from space at the end of string */
-        temp = "";
-    }
-    return retset;
-}
-
-
-
-// might be useful for doing some visualization.
-bool canReachSinkSource(int v, bool visited[], bool sign)
-{
-    // Mark the current node as visited and
-    // print it
-
-    visited[v] = true;
-    //cout << v << " ";
-    bool reachable = false;
-
-    if(global_plusoutdegree[v] == 0 && global_plusindegree[v] != 0){
-        //cout<<v<<"is sink.";
-        return true;//sink
-
-    }
-    if(global_plusindegree[v] == 0 && global_plusoutdegree[v] != 0){
-        //cout<<v<<"is source.";
-        return true;//source
-    }
-    if(global_indegree[v] == 0){
-        //cout<<v<<"is isolated.";
-        return true;//isolated
-    }
-
-
-    // Recur for all the vertices adjacent
-    // to this vertex
-    vector<edge_t>::iterator i;
-    for (i = adjList[v].begin(); i != adjList[v].end(); ++i){
-
-        if (!visited[(*i).toNode] && sign==(*i).left){
-            reachable = canReachSinkSource((*i).toNode, visited, (*i).right);
-            if(reachable==true){
-                return true;
-            }
-        }
-
-    }
-    return reachable;
-
-}
-
-void makeGraphDot(string ipstr){
-    FILE * fp;
-
-    fp = fopen ("/Users/Sherlock/Downloads/graphviz-2.40.1/graph.gv", "w+");
-
-    fprintf(fp, "digraph d {\n");
-    //string ipstr = "20 19 18";
-    set<int> verticesMarked;
-    set<int> vertices = extractIntegerWords(ipstr) ;
-    set<int> vMarked(vertices.begin(), vertices.end());
-    //set<pair<int, int> > edges;
-
-    for(int x: vertices){
-        if(x>=adjList.size()){
-            cout<<"wrong, do again"<<endl;
-            return;
-        }
-        vector<edge_t> adjX = adjList[x];
-        for(edge_t ex: adjX){
-            vertices.insert(ex.toNode);
-            fprintf(fp, "%d -> %d[taillabel=\"%d\", headlabel=\"%d\", arrowhead=\"none\"]\n", x, ex.toNode, ex.left, !ex.right);
-
-            //            pair<int, int> p;
-            //            if(x < ex.toNode){
-            //                p.first = x;
-            //                p.second = ex.toNode;
-            //            }else{
-            //                p.second = x;
-            //                p.first = ex.toNode;
-            //            }
-            //            edges.insert(p);
-        }
-    }
-    for(int x: vertices){
-        if(vMarked.count(x)>0){
-            fprintf(fp, "%d [label=\"%d\", color=\"red\"]\n", x, x);
-        }else{
-            fprintf(fp, "%d [label=\"%d\"]\n", x, x);
-        }
-
-    }
-
-    //for all int in list
-    //make a list of neighbors add them
-
-
-    fprintf(fp, "}\n");
-
-    fclose(fp);
-}
-
-
-
 int main(int argc, char** argv) {
 
 
@@ -1601,22 +1457,6 @@ int main(int argc, char** argv) {
     G.indegreePopulate();
 
     cout<<"Done. TIME to gather information about unitig graph: "<<readTimer() - time_a<<" sec."<<endl;
-
-
-    if(ALGOMODE == GRAPHPRINT){
-        char sss[1000];
-        cout<<"input the nodes to include in printing separated by space (i.e. 20 19 18): "<<endl;
-        while(true){
-            //string ipstr = "20 19 18";
-            gets(sss);
-            string ipstr(sss);
-            if(ipstr=="stop"){
-                break;
-            }
-            makeGraphDot(ipstr);
-            cout<<"done print, say again:"<<endl;
-        }
-    }
 
 
     int walkstarting_node_count = ceil((sharedparent_count + sink_count + source_count)/2.0) + isolated_node_count;
