@@ -1468,10 +1468,12 @@ void makeGraphDot(string ipstr){
 
 int main(int argc, char** argv) {
 
-    #ifdef _WIN32
-		cout<<"UST does not support windows"<<endl;
-		exit(2);
-	#endif
+
+    #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+    #else
+        cout<<"UST does not support this OS."<<endl;
+        exit(2);
+    #endif
 
 
 
