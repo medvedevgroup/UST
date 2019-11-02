@@ -133,6 +133,19 @@ vector<list<int> > newToOld;
 vector<int> walkFirstNode; //given a walk id, what's the first node of that walk
 unordered_map<int, vector<edge_t> > sinkSrcEdges; //int is the unitig id (old id)
 
+string getFileName(const string& s) {
+
+   char sep = '/';
+
+   size_t i = s.rfind(sep, s.length());
+   if (i != string::npos) {
+      return(s.substr(i+1, s.length() - i));
+   }
+
+   return("");
+}
+
+
 inline string plus_strings(const string& a, const string& b, size_t kmersize) {
     if (a == "") return b;
     if (b == "") return a;
@@ -1006,7 +1019,7 @@ public:
             system(("awk '(NR%2)' "+UNITIG_FILE+" | cut -f 5 -d ':' | cut -f 1 -d 'L' > count.usttemp").c_str()); // get a separate count file
             system("paste -d' ' uidSeq.usttemp seq.usttemp count.usttemp > merged.usttemp ");
             system("sort -n -k 1 -o merged.usttemp merged.usttemp");
-            system(("cat  merged.usttemp  | awk '{for (i=4;i<=NF;i+=1) print $i}' > "+OUTPUT_FILENAME+".ust.counts").c_str());
+            system(("cat  merged.usttemp  | awk '{for (i=4;i<=NF;i+=1) print $i}' > "+getFileName(UNITIG_FILE)+".ust.counts").c_str());
         }else{
             system("paste -d' ' uidSeq.usttemp seq.usttemp > merged.usttemp ");
             system("sort -n -k 1 -o merged.usttemp merged.usttemp");
@@ -1451,17 +1464,6 @@ void makeGraphDot(string ipstr){
     fclose(fp);
 }
 
-string getFileName(const string& s) {
-
-   char sep = '/';
-
-   size_t i = s.rfind(sep, s.length());
-   if (i != string::npos) {
-      return(s.substr(i+1, s.length() - i));
-   }
-
-   return("");
-}
 
 
 int main(int argc, char** argv) {
@@ -1471,9 +1473,7 @@ int main(int argc, char** argv) {
 		exit(2);
 	#endif
 
-    ofstream globalStatFile;
-    system("rm -rf global_stat");
-    globalStatFile.open("global_stat", std::fstream::out | std::fstream::app);
+
 
     //    string debugFileName = "debug.txt";
     //    ofstream debugFile;
@@ -1559,7 +1559,9 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
     OUTPUT_FILENAME = getFileName(UNITIG_FILE)+".ust.fa";
-
+    ofstream globalStatFile;
+    system(("rm -rf "+getFileName(UNITIG_FILE)+".stats.txt").c_str());
+    globalStatFile.open((getFileName(UNITIG_FILE)+".stats.txt").c_str(), std::fstream::out | std::fstream::app);
 
 
     double startTime = readTimer();
@@ -1785,7 +1787,7 @@ int main(int argc, char** argv) {
      cout << "------------ UST completed successfully. Output is in file "<<OUTPUT_FILENAME << " ------------"<<endl;
     cout << "Total number of unique "<<K<<"-mers " <<  "= " << numKmers << endl;
      cout << "Lower bound on any SPSS representation " <<  "= " << (charLowerbound)*1.0/numKmers << " neucleotide/k-mer"<< endl;
-    cout << "Size of UST output" <<  "= " <<ustitchBitsPerKmer*2.0 << " neucleotide/k-mer"<< endl;
+    cout << "Size of UST output" <<  "= " <<ustitchBitsPerKmer/2.0 << " neucleotide/k-mer"<< endl;
      //cout << "Gap with lower bound" << "= " << upperbound - percent_saved_c << "%" << endl;
 
     cout << "------------------------------------------------------"<<endl;

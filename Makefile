@@ -8,7 +8,7 @@ EXECUTABLE=ust
 BCALMFILE=examples/k31.a1.unitigs.fa
 K=31
 
-all: $(SOURCES) $(EXECUTABLE) 
+all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(OBJECTS) -o $@
@@ -17,7 +17,7 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -f *.o ust *.ust.fa global_stat *.ust.counts
+	rm -f *.o ust *.ust.fa *.stats.txt *.ust.counts
 
 test:
 	./ust -i  $(BCALMFILE) -k $(K) -a 1
