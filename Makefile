@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -w -std=c++11 -O2 -Wall
+CFLAGS=-c -w -std=c++11 -O2
 
 SOURCES=ust.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
@@ -17,7 +17,7 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -f *.o ust stitchedUnitigs.fa global_stat counts.txt
+	rm -f *.o ust *.ust.fa global_stat *.ust.counts
 
 test:
 	./ust -i  $(BCALMFILE) -k $(K) -a 1
