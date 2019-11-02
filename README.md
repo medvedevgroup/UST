@@ -23,14 +23,11 @@ e.g.
 
     ./ust -i examples/k11.unitigs.fa -k 11 
 
-
 The important parameters are:
 
-    -k [int] : The k-mer size that was used to generate the input, i.e. the length of the nodes of the node-centric de Bruijn graph. 
-    
-    -i [input-file] : Unitigs file produced by [BCALM2 in FASTA format](https://github.com/GATB/bcalm#output). 
-	
-    -a [0 or 1] : Default is 0. A value of 1 tells UST to preserve abundance. Use this option when the input file was generated with the  `-all-abundance counts` option of BCALM2.
+*  `k [int]` : The k-mer size that was used to generate the input, i.e. the length of the nodes of the node-centric de Bruijn graph. 
+*  `i [input-file]` : Unitigs file produced by [BCALM2 in FASTA format](https://github.com/GATB/bcalm#output). 
+*  `a [0 or 1]` : Default is 0. A value of 1 tells UST to preserve abundance. Use this option when the input file was generated with the  `-all-abundance counts` option of BCALM2.
 
 The output is a FASTA file "stitchedUnitigs.fa" in the working folder, which is the SPSS representaiton of the input.
 
