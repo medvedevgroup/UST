@@ -88,3 +88,18 @@ The output header looks like this:
 
 ## Command to measure time and memory usage
 `/usr/bin/time`
+
+## Versions used for analysis
+
+Versions of the tools used in experiments of the RECOMB paper. 
+
+| Tool | URL | Git commit hash / Version | 
+| ---  | --- | ------------------------- |
+| Bcalm2 | https://github.com/gatb/bcalm | f4e0012e8056c56a04c7b00a927c260d5dbd2636 |
+| Cosmo / VARI | https://github.com/cosmo-team/cosmo/tree/VARI | d35bc3dd2d6ba7861232c49274dc6c63320cedc1 |
+| dbgfm | https://github.com/jts/dbgfm | ef82d38af2c402beab9ef9f12a72e7dcaeff210c |
+| KMC   | https://github.com/refresh-bio/KMC | 85ad76956d890aa24fc8525eee5653078ed86ace | 
+| Squeakr | https://github.com/splatlab/squeakr | aa30936a40ac07b556d48b867ccadcebc5525021 |
+| McCortex | https://github.com/mcveanlab/mccortex/ | d3901d900cacff376e1201e86223adf1cc56784a |
+| MFC | http://bioinformatics.ua.pt/software/mfcompress/ | Version 1.01 |
+
