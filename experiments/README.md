@@ -61,7 +61,7 @@ The output header looks like this:
 - To decompress: `MFCompressD stitchedUnitigs.fa.mfc`
 
 #### KMC 3
-`kmc -k31 -ci2  -v  @list_reads /home/user/kmc31.2_outdir /home/user/kmc31.2_outdir/tmp`
+`kmc -k31 -ci2 -sm -m2 -v  @list_reads /home/user/kmc31.2_outdir /home/user/kmc31.2_outdir/tmp`
 
 #### Cosmo/VARI
 - Follow the instructions to install [VARI](https://github.com/cosmo-team/cosmo/tree/VARI). Last checked with commit d35bc3dd2d6ba7861232c49274dc6c63320cedc1.
