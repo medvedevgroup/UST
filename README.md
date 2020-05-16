@@ -46,4 +46,20 @@ If you would like to build a membership data structure based on UST, then
 ## Citation
 
 If using UST in your research, please cite
-* Amatur Rahman and Paul Medvedev, "Representation of k-mer sets using spectrum-preserving string sets", in submission.
+* Amatur Rahman and Paul Medvedev, [Representation of k-mer sets using spectrum-preserving string sets](http://doi.org/10.1007/978-3-030-45257-5\_10), RECOMB 2020.
+* Here is the bibtex entry:
+
+```
+@inproceedings{RahmanMedvedevRECOMB20,
+  author    = {Amatur Rahman and Paul Medvedev},
+  title     = {Representation of $k$-mer sets using spectrum-preserving string sets},
+  booktitle = {Research in Computational Molecular Biology - 24th Annual International Conference, {RECOMB} 2020, Padua, Italy, May 10-13, 2020, Proceedings},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {12074},
+  pages     = {152--168},
+  publisher = {Springer},
+  year      = {2020
+}
+```
+
+
