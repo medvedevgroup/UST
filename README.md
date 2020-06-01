@@ -62,4 +62,9 @@ If using UST in your research, please cite
 }
 ```
 
+Note that the general notion of an SPSS was independently introduced under the name of simplitigs. Therefore, if citing this general notion, please also cite:
+* Brinda K, Baym M, and Kucherov G, [Simplitigs as an efficient and scalable representation of de Bruijn graphs](https://doi.org/10.1101/2020.01.12.903443), bioRxiv 2020.
+
+
+
 
