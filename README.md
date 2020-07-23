@@ -2,6 +2,8 @@
 
 UST is a bioinformatics tool for constructing a spectrum-preserving string set (SPSS) representation from sets of k-mers.
 
+__Note__: This software has been subsumed by [ESSCompress](https://github.com/medvedevgroup/ESSCompress/). To use UST, download ESSCompress and follow the UST instructions in the [README](https://github.com/medvedevgroup/ESSCompress/blob/master/README.md#Running-in-UST-mode).
+
 ## Requirements
 
 GCC >= 4.8 or a C++11 capable compiler
